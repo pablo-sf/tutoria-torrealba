@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#ffffff">
+  <title>Tutoría personal · Torrealba</title>
+  <link rel="icon" type="image/png" href="escudo.png">
+  <link rel="apple-touch-icon" href="icono.png">
+  <meta name="apple-mobile-web-app-title" content="Tutoría">
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <style>
+    /* Imagen corporativa de Torrealba: teal del logo y lima de acento, sobre blanco. */
+    :root {
+      --teal: #006778;
+      --teal-oscuro: #00485a;
+      --teal-claro: #e5f1f3;
+      --lima: #b5cc2e;
+      --lima-claro: #f1f6d5;
+      --tinta: #1b2a30;
+      --suave: #5d7178;
+      --linea: #dfe7e9;
+      --aviso: #a3261a;
+      --aviso-fondo: #fbe4e1;
+      --sombra: 0 1px 2px rgba(0, 72, 90, 0.08), 0 4px 14px rgba(0, 72, 90, 0.09);
+      --sombra-suave: 0 1px 3px rgba(0, 72, 90, 0.10);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--tinta);
+      background: #ffffff;
+    }
+    button, input, select { font: inherit; color: inherit; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #ffffff;
+      padding: calc(12px + env(safe-area-inset-top)) 16px 8px;
+      border-bottom: 3px solid var(--lima);
+      box-shadow: 0 4px 12px rgba(0, 72, 90, 0.10);
+    }
+    .titulo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .marca { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .marca img { width: 30px; height: 48px; flex: none; }
+    .marca .centro {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--teal);
+    }
+    h1 { margin: 0; font-size: 20px; line-height: 1.15; font-weight: 700; color: var(--teal-oscuro); }
+    .actualizar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 0;
+      background: none;
+      color: var(--suave);
+      font-size: 12px;
+      padding: 6px 0 6px 8px;
+      cursor: pointer;
+    }
+    .actualizar svg { width: 18px; height: 18px; color: var(--teal); }
+    .actualizar.girando svg { animation: girar 0.8s linear infinite; }
+    @keyframes girar { to { transform: rotate(360deg); } }
+
+    .busqueda { position: relative; }
+    .busqueda svg {
+      position: absolute;
+      left: 12px;
+      top: 13px;
+      width: 20px;
+      height: 20px;
+      color: var(--teal);
+      pointer-events: none;
+    }
+    .busqueda input {
+      width: 100%;
+      height: 46px;
+      padding: 0 40px 0 40px;
+      border: 1px solid var(--linea);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: var(--sombra);
+      font-size: 16px; /* 16px evita el zoom automático de iOS */
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .busqueda input:focus { outline: 2px solid var(--teal); outline-offset: -1px; }
+    .busqueda input::-webkit-search-cancel-button { display: none; }
+    .borrar {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--suave);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .etapas {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      margin: 10px -16px 0;
+      padding: 2px 16px 4px;
+      scrollbar-width: none;
+    }
+    .etapas::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: none;
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid var(--linea);
+      border-radius: 17px;
+      background: #ffffff;
+      box-shadow: var(--sombra-suave);
+      color: var(--teal-oscuro);
+      font-size: 14px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .chip[aria-pressed="true"] {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .selectores { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+    .selectores select {
+      width: 100%;
+      min-width: 0;
+      height: 38px;
+      padding: 0 8px;
+      border: 1px solid var(--linea);
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: var(--sombra-suave);
+      font-size: 14px;
+    }
+    .selectores select.activo {
+      border-color: var(--teal);
+      background: var(--teal-claro);
+      color: var(--teal-oscuro);
+      font-weight: 600;
+    }
+
+    .estado {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 28px;
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--suave);
+    }
+    .quitar {
+      border: 0;
+      background: none;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 0;
+      cursor: pointer;
+    }
+
+    main { padding: 14px 16px calc(24px + env(safe-area-inset-bottom)); }
+    .error {
+      margin: 0 0 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--aviso-fondo);
+      color: var(--aviso);
+      font-size: 14px;
+    }
+    /* Una columna en el móvil; en pantallas anchas, las que quepan. */
+    ul {
+      list-style: none;
+      margin: 0 auto;
+      padding: 0;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 14px;
+    }
+    .alumno {
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+      border: 1px solid var(--linea);
+      border-radius: 16px;
+      box-shadow: var(--sombra);
+      padding: 22px 18px 0;
+      text-align: center;
+    }
+    /* Franja superior: teal con toque lima si tiene tutor, roja si no. */
+    .alumno::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 5px;
+      background: linear-gradient(90deg, var(--teal) 0 75%, var(--lima) 75%);
+    }
+    .alumno.sin::before { background: var(--aviso); }
+    .alumno .curso {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      background: var(--teal-claro);
+      color: var(--teal-oscuro);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .alumno .apellidos {
+      margin-top: 12px;
+      font-size: 23px;
+      line-height: 1.2;
+      font-weight: 750;
+      color: var(--tinta);
+      overflow-wrap: anywhere;
+    }
+    .alumno .nombre-pila {
+      margin-top: 2px;
+      font-size: 19px;
+      color: var(--tinta);
+    }
+    .alumno .pie {
+      margin: 16px -18px 0;
+      padding: 12px 18px 16px;
+      border-top: 1px solid var(--linea);
+      background: #fbfcf6;
+    }
+    .alumno .etiqueta {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--suave);
+    }
+    .alumno .tutor {
+      margin-top: 4px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--teal);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      cursor: pointer;
+    }
+    .alumno .tutor .iniciales { color: var(--suave); font-weight: 500; font-variant-numeric: tabular-nums; }
+    .alumno .sin-tutor { margin-top: 4px; font-size: 20px; font-weight: 700; color: var(--aviso); }
+    /* Mientras no hay sesión, solo se ve el panel de acceso. */
+    body.sin-sesion .busqueda, body.sin-sesion .etapas, body.sin-sesion .selectores,
+    body.sin-sesion .estado, body.sin-sesion .actualizar, body.sin-sesion #inicio,
+    body.sin-sesion .salir { display: none; }
+    body.sin-sesion header { box-shadow: none; }
+    .acceso {
+      max-width: 360px;
+      margin: 32px auto 0;
+      padding: 28px 22px;
+      border: 1px solid var(--linea);
+      border-radius: 16px;
+      box-shadow: var(--sombra);
+      text-align: center;
+    }
+    .acceso img { width: 56px; height: 90px; }
+    .acceso h2 { margin: 14px 0 6px; font-size: 20px; color: var(--teal-oscuro); }
+    .acceso p { margin: 0 0 18px; color: var(--suave); font-size: 15px; }
+    .acceso .mensaje { color: var(--aviso); }
+    .boton {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 48px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--teal);
+      box-shadow: var(--sombra);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .boton:disabled { opacity: 0.6; cursor: default; }
+    .boton.secundario {
+      margin-top: 10px;
+      background: #ffffff;
+      border: 1px solid var(--linea);
+      color: var(--teal-oscuro);
+    }
+    .error .boton { margin-top: 8px; width: auto; min-height: 38px; }
+    .salir {
+      display: block;
+      margin: 24px auto 0;
+      border: 0;
+      background: none;
+      color: var(--suave);
+      font-size: 13px;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .vacio { max-width: 320px; margin: 0 auto; text-align: center; color: var(--suave); padding: 40px 0; }
+  </style>
+</head>
+<body class="sin-sesion">
+  <header>
+    <div class="titulo">
+      <div class="marca">
+        <img alt="" src="escudo.png">
+        <div>
+          <div class="centro">TORREALBA</div>
+          <h1>Tutoría personal</h1>
+        </div>
+      </div>
+      <button class="actualizar" id="actualizar" type="button" aria-label="Actualizar">
+        <span id="hora"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="busqueda">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+      </svg>
+      <input id="texto" type="search" placeholder="Buscar alumno o tutor" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar alumno o tutor">
+      <button class="borrar" id="borrar" type="button" aria-label="Borrar búsqueda" hidden>×</button>
+    </div>
+    <div class="etapas" id="etapas" role="group" aria-label="Etapa"></div>
+    <div class="selectores">
+      <select id="curso" aria-label="Curso"></select>
+      <select id="tutor" aria-label="Tutor"></select>
+    </div>
+    <div class="estado">
+      <span id="cuenta"></span>
+      <button class="quitar" id="quitar" type="button" hidden>Quitar filtros</button>
+    </div>
+  </header>
+  <main>
+    <section class="acceso" id="acceso">
+      <img alt="" src="escudo.png">
+      <h2>Consulta de tutores</h2>
+      <p id="accesoTexto">Solo para el personal de Torrealba. Entra con tu cuenta del colegio (@torrealba.es).</p>
+      <button class="boton" id="entrar" type="button">Entrar con tu cuenta de Torrealba</button>
+      <button class="boton secundario" id="otraCuenta" type="button" hidden>Entrar con otra cuenta</button>
+    </section>
+    <div class="error" id="error" hidden></div>
+    <ul id="lista"></ul>
+    <p class="vacio" id="inicio">Escribe el nombre de un alumno o de un tutor, o elige una etapa, un curso o un tutor.</p>
+    <p class="vacio" id="vacio" hidden>No hay alumnos que coincidan.</p>
+    <button class="salir" id="salir" type="button">Cerrar sesión</button>
+  </main>
+
+  <script>
+    let alumnos = [];
+    const filtro = { texto: '', etapa: '', curso: '', tutor: '' };
+    let ultimaCarga = 0;
+    const $ = id => document.getElementById(id);
+
+    function clave(texto) {
+      return String(texto || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    }
+
+    function comparar(a, b) {
+      return a.localeCompare(b, 'es', { sensitivity: 'base', numeric: true });
+    }
+
+    /** Los alumnos sin etapa van juntos en «Otros», que se filtra con «-». */
+    const SIN_ETAPA = '-';
+
+    function etapaDe(a) {
+      return a.etapa || SIN_ETAPA;
+    }
+
+    /** «Ciclos Formativos Grado Medio» cabe mal en un botón. */
+    function etiquetaEtapa(etapa) {
+      return etapa === SIN_ETAPA ? 'Otros' : etapa.replace(/^Ciclos Formativos\s+/i, '');
+    }
+
+    /*
+     * Los datos no están en esta página: están en la hoja «Consulta de tutorías»,
+     * compartida solo con el personal. Se leen con la cuenta de quien entra, así
+     * que quien no tenga acceso a esa hoja no ve nada. Estos dos identificadores
+     * no son secretos.
+     */
+    const CONFIG = {
+      clienteId: 'PENDIENTE.apps.googleusercontent.com',
+      hojaId: 'PENDIENTE',
+      rango: 'Alumnos!A2:F',
+      dominio: 'torrealba.es',
+      permiso: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    };
+    const CLAVE_SESION = 'tutoria-sesion';
+    let sesion = null;
+    let clienteToken = null;
+
+    function leerSesion() {
+      try {
+        const guardada = JSON.parse(localStorage.getItem(CLAVE_SESION) || 'null');
+        return guardada && guardada.caduca > Date.now() ? guardada : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function guardarSesion(valor) {
+      sesion = valor;
+      try {
+        if (valor) localStorage.setItem(CLAVE_SESION, JSON.stringify(valor));
+        else localStorage.removeItem(CLAVE_SESION);
+      } catch (error) {
+        // Sin almacenamiento, la sesión dura mientras la página esté abierta.
+      }
+    }
+
+    function mostrarAcceso(mensaje, conOtraCuenta) {
+      document.body.classList.add('sin-sesion');
+      $('acceso').hidden = false;
+      $('error').hidden = true;
+      $('lista').replaceChildren();
+      $('vacio').hidden = true;
+      $('accesoTexto').textContent = mensaje ||
+        'Solo para el personal de Torrealba. Entra con tu cuenta del colegio (@torrealba.es).';
+      $('accesoTexto').classList.toggle('mensaje', Boolean(mensaje));
+      $('otraCuenta').hidden = !conOtraCuenta;
+      $('entrar').disabled = false;
+    }
+
+    /** El botón de Google carga aparte: se espera a que esté listo. */
+    function cliente() {
+      if (clienteToken) return clienteToken;
+      if (!window.google || !google.accounts || !google.accounts.oauth2) return null;
+      clienteToken = google.accounts.oauth2.initTokenClient({
+        client_id: CONFIG.clienteId,
+        scope: CONFIG.permiso,
+        hosted_domain: CONFIG.dominio,
+        callback: respuesta => {
+          if (respuesta.error) {
+            mostrarAcceso('No se ha podido entrar. Vuelve a intentarlo.');
+            return;
+          }
+          guardarSesion({
+            token: respuesta.access_token,
+            // Un minuto de margen para no usarlo justo cuando caduca.
+            caduca: Date.now() + (Number(respuesta.expires_in) - 60) * 1000,
+          });
+          cargar();
+        },
+        error_callback: () => mostrarAcceso(
+          'No se ha completado el acceso. Si se ha cerrado la ventana de Google, vuelve a intentarlo.'),
+      });
+      return clienteToken;
+    }
+
+    function entrar(elegirCuenta) {
+      const c = cliente();
+      if (!c) {
+        mostrarAcceso('Aún se está cargando el acceso de Google. Espera un segundo y vuelve a tocar.');
+        return;
+      }
+      $('entrar').disabled = true;
+      c.requestAccessToken({ prompt: elegirCuenta ? 'select_account' : '' });
+    }
+
+    async function cargar() {
+      sesion = sesion || leerSesion();
+      if (!sesion) {
+        mostrarAcceso();
+        return;
+      }
+      $('actualizar').classList.add('girando');
+      try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.hojaId}` +
+          `/values/${encodeURIComponent(CONFIG.rango)}`;
+        const respuesta = await fetch(url, { headers: { Authorization: `Bearer ${sesion.token}` } });
+        if (respuesta.status === 401) {
+          guardarSesion(null);
+          mostrarAcceso('Tu sesión ha caducado. Vuelve a entrar.');
+          return;
+        }
+        if (respuesta.status === 403 || respuesta.status === 404) {
+          guardarSesion(null);
+          mostrarAcceso('Esta cuenta no tiene acceso a la consulta: es solo para el personal de Torrealba. ' +
+            'Si crees que es un error, avisa a quien lleva el reparto de tutorías.', true);
+          return;
+        }
+        if (!respuesta.ok) throw new Error(`respuesta ${respuesta.status} de Google`);
+        const datos = await respuesta.json();
+        recibir((datos.values || []).map(f => ({
+          apellidos: f[0] || '', nombre: f[1] || '', etapa: f[2] || '',
+          curso: f[3] || '', tutor: f[4] || '', iniciales: f[5] || '',
+        })));
+      } catch (error) {
+        fallo(error);
+      }
+    }
+
+    function recibir(filas) {
+      document.body.classList.remove('sin-sesion');
+      $('acceso').hidden = true;
+      alumnos = filas.map(a => Object.assign(a, {
+        busqueda: clave([a.nombre, a.apellidos, a.curso, a.tutor, a.iniciales].join(' ')),
+      }));
+      ultimaCarga = Date.now();
+      $('hora').textContent = 'Actualizado ' +
+        new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      $('actualizar').classList.remove('girando');
+      $('error').hidden = true;
+      pintarFiltros();
+      pintarLista();
+    }
+
+    function fallo(error) {
+      $('actualizar').classList.remove('girando');
+      $('error').textContent = 'No se ha podido actualizar: ' + (error && error.message ? error.message : error);
+      $('error').hidden = false;
+    }
+
+    /** Con la sesión caducada hace falta un toque: Google no abre su ventana sin él. */
+    function actualizar() {
+      if (leerSesion()) {
+        cargar();
+        return;
+      }
+      guardarSesion(null);
+      $('error').replaceChildren('Tu sesión ha caducado. ');
+      const boton = elemento('button', 'boton', 'Volver a entrar');
+      boton.type = 'button';
+      boton.addEventListener('click', () => entrar(false));
+      $('error').append(boton);
+      $('error').hidden = false;
+    }
+
+    function opcion(valor, texto) {
+      const o = document.createElement('option');
+      o.value = valor;
+      o.textContent = texto;
+      return o;
+    }
+
+    function pintarFiltros() {
+      const etapas = [...new Set(alumnos.map(etapaDe))]
+        .sort((a, b) => (a === SIN_ETAPA) - (b === SIN_ETAPA) || comparar(a, b));
+      if (!etapas.includes(filtro.etapa)) filtro.etapa = '';
+      const contenedor = $('etapas');
+      contenedor.replaceChildren(...[['', 'Todas']].concat(etapas.map(e => [e, etiquetaEtapa(e)]))
+        .map(([valor, texto]) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'chip';
+          b.textContent = texto;
+          b.setAttribute('aria-pressed', String(filtro.etapa === valor));
+          b.addEventListener('click', () => {
+            filtro.etapa = valor;
+            filtro.curso = '';
+            pintarFiltros();
+            pintarLista();
+          });
+          return b;
+        }));
+
+      const cursos = [...new Set(alumnos
+        .filter(a => !filtro.etapa || etapaDe(a) === filtro.etapa)
+        .map(a => a.curso).filter(Boolean))].sort(comparar);
+      if (!cursos.includes(filtro.curso)) filtro.curso = '';
+      $('curso').replaceChildren(opcion('', 'Todos los cursos'), ...cursos.map(c => opcion(c, c)));
+      $('curso').value = filtro.curso;
+
+      const tutores = new Map();
+      alumnos.forEach(a => { if (a.tutor) tutores.set(a.tutor, a.iniciales); });
+      const nombres = [...tutores.keys()].sort(comparar);
+      if (filtro.tutor && filtro.tutor !== '-' && !tutores.has(filtro.tutor)) filtro.tutor = '';
+      const opciones = [opcion('', 'Todos los tutores')];
+      if (alumnos.some(a => !a.tutor)) opciones.push(opcion('-', 'Sin tutor asignado'));
+      nombres.forEach(n => opciones.push(opcion(n, tutores.get(n) ? `${n} (${tutores.get(n)})` : n)));
+      $('tutor').replaceChildren(...opciones);
+      $('tutor').value = filtro.tutor;
+    }
+
+    function pintarLista() {
+      const palabras = clave(filtro.texto).split(/\s+/).filter(Boolean);
+      const hayFiltro = Boolean(palabras.length || filtro.etapa || filtro.curso || filtro.tutor);
+      // Al abrir, la lista va vacía: se busca o se filtra para ver alumnos.
+      const visibles = !hayFiltro ? [] : alumnos.filter(a =>
+        (!filtro.etapa || etapaDe(a) === filtro.etapa) &&
+        (!filtro.curso || a.curso === filtro.curso) &&
+        (!filtro.tutor || (filtro.tutor === '-' ? !a.tutor : a.tutor === filtro.tutor)) &&
+        palabras.every(p => a.busqueda.includes(p)));
+
+      $('lista').replaceChildren(...visibles.map(tarjeta));
+      $('inicio').hidden = hayFiltro || !alumnos.length;
+      $('vacio').hidden = !hayFiltro || visibles.length > 0 || !alumnos.length;
+      $('cuenta').textContent = !hayFiltro || visibles.length === alumnos.length
+        ? `${alumnos.length} alumnos`
+        : `${visibles.length} de ${alumnos.length} alumnos`;
+      $('quitar').hidden = !hayFiltro;
+      $('borrar').hidden = !filtro.texto;
+      $('curso').classList.toggle('activo', Boolean(filtro.curso));
+      $('tutor').classList.toggle('activo', Boolean(filtro.tutor));
+    }
+
+    function elemento(etiqueta, clase, texto) {
+      const e = document.createElement(etiqueta);
+      e.className = clase;
+      if (texto) e.textContent = texto;
+      return e;
+    }
+
+    function tarjeta(a) {
+      const li = elemento('li', a.tutor ? 'alumno' : 'alumno sin');
+      if (a.curso) li.append(elemento('div', 'curso', a.curso));
+      li.append(elemento('div', 'apellidos', a.apellidos || a.nombre));
+      if (a.apellidos && a.nombre) li.append(elemento('div', 'nombre-pila', a.nombre));
+
+      const pie = elemento('div', 'pie');
+      pie.append(elemento('div', 'etiqueta', 'TUTOR PERSONAL'));
+      if (a.tutor) {
+        // Tocar el tutor enseña todos sus alumnos.
+        const tutor = elemento('button', 'tutor', a.tutor);
+        tutor.type = 'button';
+        if (a.iniciales) tutor.append(' ', elemento('span', 'iniciales', `(${a.iniciales})`));
+        tutor.addEventListener('click', () => {
+          Object.assign(filtro, { texto: '', etapa: '', curso: '', tutor: a.tutor });
+          $('texto').value = '';
+          pintarFiltros();
+          pintarLista();
+          window.scrollTo(0, 0);
+        });
+        pie.append(tutor);
+      } else {
+        pie.append(elemento('div', 'sin-tutor', 'Sin asignar'));
+      }
+      li.append(pie);
+      return li;
+    }
+
+    $('texto').addEventListener('input', e => { filtro.texto = e.target.value; pintarLista(); });
+    $('texto').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
+    $('borrar').addEventListener('click', () => {
+      filtro.texto = '';
+      $('texto').value = '';
+      pintarLista();
+      $('texto').focus();
+    });
+    $('curso').addEventListener('change', e => { filtro.curso = e.target.value; pintarLista(); });
+    $('tutor').addEventListener('change', e => { filtro.tutor = e.target.value; pintarLista(); });
+    $('quitar').addEventListener('click', () => {
+      Object.assign(filtro, { texto: '', etapa: '', curso: '', tutor: '' });
+      $('texto').value = '';
+      pintarFiltros();
+      pintarLista();
+    });
+    $('actualizar').addEventListener('click', actualizar);
+    $('entrar').addEventListener('click', () => entrar(false));
+    $('otraCuenta').addEventListener('click', () => entrar(true));
+    $('salir').addEventListener('click', () => {
+      if (sesion && window.google && google.accounts) google.accounts.oauth2.revoke(sesion.token, () => {});
+      guardarSesion(null);
+      alumnos = [];
+      mostrarAcceso();
+    });
+    // La hoja está viva: al volver a la pestaña o a la app se recargan los datos.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && alumnos.length && Date.now() - ultimaCarga > 30000) actualizar();
+    });
+
+    sesion = leerSesion();
+    if (sesion) cargar();
+    else mostrarAcceso();
+  </script>
+</body>
+</html>
